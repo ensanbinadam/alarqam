@@ -45,9 +45,7 @@
             font-weight: bold;
             color: #000;
             white-space: pre-wrap;
-            /* يسمح بالتفاف الرموز */
             line-height: 1.5;
-            /* تحسين التباعد بين الأسطر */
         }
 
         .options {
@@ -66,7 +64,6 @@
             border: 1px solid #ccc;
             transition: background-color 0.3s;
             color: #000;
-            font-family: "Arial", "Tahoma", sans-serif;
         }
 
         .option.correct {
@@ -97,87 +94,81 @@
             background-color: #45a049;
         }
 
-        /* تحسين العرض للشاشات الصغيرة */
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
+        .message-container {
+            display: none;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
 
-            h1 {
-                font-size: 1.5em;
-            }
+        .message-container h2 {
+            color: #4CAF50;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
 
-            .question {
-                font-size: 1.2em;
-            }
+        .message-container button {
+            background-color: #007bff;
+        }
 
-            .shapes {
-                font-size: 1.8em;
-            }
-
-            .option {
-                font-size: 1em;
-                padding: 10px;
-            }
-
-            button {
-                font-size: 16px;
-                padding: 8px 15px;
-            }
+        .message-container button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 
 <body>
     <h1>مراجعة الأرقام للأطفال</h1>
-    <div class="container">
+    <div class="container" id="quiz-container">
         <div class="question" id="question"></div>
         <div class="shapes" id="shapes"></div>
         <div class="options" id="options"></div>
         <button onclick="nextQuestion()">السؤال التالي</button>
+        <button onclick="endQuiz()">إنهاء</button>
+    </div>
+
+    <div class="message-container" id="message-container">
+        <h2>شكرًا لك على المشاركة!</h2>
+        <button onclick="restartQuiz()">إعادة المراجعة</button>
     </div>
 
     <script>
         const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩", "١٠"];
         const symbols = ["⭐", "⚪", "⬤", "🍎", "🌟", "🔵", "💠", "❄"];
         let correctAnswer = 0;
+        const maxPerRow = 5; // تغيير هذا الرقم إلى 5 إذا كنت تريد 5 رموز فقط في كل سطر.
 
         function generateQuestion() {
             const shapesElement = document.getElementById("shapes");
             const optionsElement = document.getElementById("options");
 
-            // اختيار عدد عشوائي ورمز عشوائي
             const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
             const randomCount = Math.floor(Math.random() * 10) + 1;
 
             correctAnswer = randomCount;
 
-            // إنشاء النصوص
             document.getElementById("question").textContent = `كم عدد ${randomSymbol}؟`;
 
-            // إذا كان العدد كبيرًا، قسّم الرموز إلى أسطر
-            if (randomCount > 7) {
-                let displayShapes = "";
-                for (let i = 0; i < randomCount; i++) {
-                    displayShapes += randomSymbol;
-                    if ((i + 1) % 7 === 0) displayShapes += "\n"; // إضافة سطر جديد كل 7 رموز
-                }
-                shapesElement.textContent = displayShapes;
-            } else {
-                shapesElement.textContent = randomSymbol.repeat(randomCount);
+            shapesElement.textContent = "";
+            let displayShapes = "";
+            for (let i = 0; i < randomCount; i++) {
+                displayShapes += randomSymbol;
+                if ((i + 1) % maxPerRow === 0) displayShapes += "\n"; // تقسيم الأسطر.
             }
+            shapesElement.textContent = displayShapes;
 
-            // خيارات الإجابة
             const options = [correctAnswer];
             while (options.length < 3) {
                 const wrongAnswer = Math.floor(Math.random() * 10) + 1;
                 if (!options.includes(wrongAnswer)) options.push(wrongAnswer);
             }
 
-            // ترتيب الخيارات عشوائيًا
             options.sort(() => Math.random() - 0.5);
 
-            // عرض الخيارات
             optionsElement.innerHTML = "";
             options.forEach(option => {
                 const optionElement = document.createElement("div");
@@ -201,19 +192,23 @@
                 }
                 option.onclick = null;
             });
-
-            if (isCorrect) {
-                console.log("إجابة صحيحة!");
-            } else {
-                console.log("إجابة خاطئة!");
-            }
         }
 
         function nextQuestion() {
             generateQuestion();
         }
 
-        // بدء الأسئلة
+        function endQuiz() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("message-container").style.display = "block";
+        }
+
+        function restartQuiz() {
+            document.getElementById("message-container").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            generateQuestion();
+        }
+
         generateQuestion();
     </script>
 </body>
