@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>مراجعة الأرقام للأطفال</title>
+    <style>
+        body {
+            font-family: "Arial", "Tahoma", sans-serif;
+            text-align: center;
+            direction: rtl;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .shapes {
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #000;
+            white-space: pre-wrap;
+            /* يسمح بالتفاف الرموز */
+            line-height: 1.5;
+            /* تحسين التباعد بين الأسطر */
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s;
+            color: #000;
+            font-family: "Arial", "Tahoma", sans-serif;
+        }
+
+        .option.correct {
+            background-color: #c8e6c9;
+            border-color: #2e7d32;
+            color: #2e7d32;
+        }
+
+        .option.incorrect {
+            background-color: #ffcdd2;
+            border-color: #c62828;
+            color: #c62828;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* تحسين العرض للشاشات الصغيرة */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .question {
+                font-size: 1.2em;
+            }
+
+            .shapes {
+                font-size: 1.8em;
+            }
+
+            .option {
+                font-size: 1em;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>مراجعة الأرقام للأطفال</h1>
+    <div class="container">
+        <div class="question" id="question"></div>
+        <div class="shapes" id="shapes"></div>
+        <div class="options" id="options"></div>
+        <button onclick="nextQuestion()">السؤال التالي</button>
+    </div>
+
+    <script>
+        const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩", "١٠"];
+        const symbols = ["⭐", "⚪", "⬤", "🍎", "🌟", "🔵", "💠", "❄"];
+        let correctAnswer = 0;
+
+        function generateQuestion() {
+            const shapesElement = document.getElementById("shapes");
+            const optionsElement = document.getElementById("options");
+
+            // اختيار عدد عشوائي ورمز عشوائي
+            const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+            const randomCount = Math.floor(Math.random() * 10) + 1;
+
+            correctAnswer = randomCount;
+
+            // إنشاء النصوص
+            document.getElementById("question").textContent = `كم عدد ${randomSymbol}؟`;
+
+            // إذا كان العدد كبيرًا، قسّم الرموز إلى أسطر
+            if (randomCount > 7) {
+                let displayShapes = "";
+                for (let i = 0; i < randomCount; i++) {
+                    displayShapes += randomSymbol;
+                    if ((i + 1) % 7 === 0) displayShapes += "\n"; // إضافة سطر جديد كل 7 رموز
+                }
+                shapesElement.textContent = displayShapes;
+            } else {
+                shapesElement.textContent = randomSymbol.repeat(randomCount);
+            }
+
+            // خيارات الإجابة
+            const options = [correctAnswer];
+            while (options.length < 3) {
+                const wrongAnswer = Math.floor(Math.random() * 10) + 1;
+                if (!options.includes(wrongAnswer)) options.push(wrongAnswer);
+            }
+
+            // ترتيب الخيارات عشوائيًا
+            options.sort(() => Math.random() - 0.5);
+
+            // عرض الخيارات
+            optionsElement.innerHTML = "";
+            options.forEach(option => {
+                const optionElement = document.createElement("div");
+                optionElement.className = "option";
+                optionElement.textContent = arabicNumbers[option];
+                optionElement.setAttribute("data-is-correct", option === correctAnswer);
+                optionElement.onclick = () => handleOptionClick(optionElement, optionsElement);
+                optionsElement.appendChild(optionElement);
+            });
+        }
+
+        function handleOptionClick(selectedOption, optionsContainer) {
+            const isCorrect = selectedOption.getAttribute("data-is-correct") === "true";
+            const options = optionsContainer.childNodes;
+
+            options.forEach(option => {
+                if (option.getAttribute("data-is-correct") === "true") {
+                    option.classList.add("correct");
+                } else {
+                    option.classList.add("incorrect");
+                }
+                option.onclick = null;
+            });
+
+            if (isCorrect) {
+                console.log("إجابة صحيحة!");
+            } else {
+                console.log("إجابة خاطئة!");
+            }
+        }
+
+        function nextQuestion() {
+            generateQuestion();
+        }
+
+        // بدء الأسئلة
+        generateQuestion();
+    </script>
+</body>
+
+</html>
